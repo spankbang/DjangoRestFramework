@@ -4,65 +4,34 @@ from .models import Employee
 import io
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
-from .serializers import EmployeeSerializers
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .serializers import NameSerializer
 
+class TestAPIView(APIView):
 
-@method_decorator(csrf_exempt,name="dispatch")
-class EmployeeCRUD(View):
-
-    def get(self, requests,*args,**kwargs):
-        json_data = requests.body
-        stream = io.BytesIO(json_data)
-        data = JSONParser().parse(stream)
-        id = data.get('id', None)
-        if id is not None:
-            emp = Employee.objects.get(id=id)
-            emp_serializer = EmployeeSerializers(emp)
-            json_data = JSONRenderer().render(emp_serializer.data)
-            return HttpResponse(json_data, content_type='application/json')
-        emp = Employee.objects.all()
-        emp_serializer = EmployeeSerializers(emp,many=True)
-        json_data = JSONRenderer().render(emp_serializer.data)
-        return HttpResponse(json_data, content_type='application/json')
+    def get(self, requests, *args, **kwargs):
+        colors = ['red', 'yellow', 'green']
+        return Response({"msg": "Hpaay Diwali", "colors": colors})
 
     def post(self, requests, *args, **kwargs):
-        json_data = requests.body
-        stream = io.BytesIO(json_data)
-        data = JSONParser().parse(stream)
-        serialized_data = EmployeeSerializers(data=data)
-        if serialized_data.is_valid():
-            serialized_data.save()
-            msg = "Resource added successfully."
-            json_data = JSONRenderer().render(msg)
-            return HttpResponse(json_data,content_type="application/json")
-        json_data = JSONRenderer().render(serialized_data.errors)
-        return HttpResponse(json_data, content_type="application/json")
-
-
-    def put(self, requests, *args, **kwargs):
-        json_data = requests.body
-        stream = io.BytesIO(json_data)
-        data = JSONParser().parse(stream)
-        id = data.get("id")
-        emp = Employee.objects.get(id=id)
-        serializer = EmployeeSerializers(emp, data=data,partial=True)
+        serializer = NameSerializer(data=requests.data)
         if serializer.is_valid():
-            serializer.save()
-            msg = "Resource updated successfully."
-            json_data = JSONRenderer().render(msg)
-            return HttpResponse(json_data, content_type="application/json")
-        json_data = JSONRenderer().render(serializer.errors)
-        return HttpResponse(json_data, content_type="application/json")
-
+            name = serializer.data.get("name")
+            msg = f"Hello {name}, and fuck you !"
+            return Response({"msg":msg})
+        else:
+            return Response({"msg": serializer.errors})
+    
+    def put(self, requests, *args, **kwargs):
+        return Response({"msg": "Thi response is from PUT."})
+        
+    def patch(self, requests, *args, **kwargs):
+        return Response({"msg": "Thi response is from PATCH."})
+    
     def delete(self, requests, *args, **kwargs):
-        json_data = requests.body
-        stream = io.BytesIO(json_data)
-        data = JSONParser().parse(stream)
-        id = data.get("id")
-        emp = Employee.objects.get(id=id)
-        emp.delete()
-        json_data = "Deleted successfully"
-        return HttpResponse(json_data, content_type="application/json")
+        return Response({"msg": "Thi response is from DELETE."})
+

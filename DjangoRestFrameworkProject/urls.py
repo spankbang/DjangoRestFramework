@@ -15,10 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from DjangoRestFrameworkApp.views import EmployeeCRUD
+from DjangoRestFrameworkApp.views import TestAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api-rest/", include("rest_framework.urls")),
-    path("api/",EmployeeCRUD.as_view())
+    path("api/",TestAPIView.as_view())
 ]
