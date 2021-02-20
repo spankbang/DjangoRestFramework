@@ -8,30 +8,33 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from .serializers import NameSerializer
 
-class TestAPIView(APIView):
+from rest_framework import viewsets
 
-    def get(self, requests, *args, **kwargs):
-        colors = ['red', 'yellow', 'green']
-        return Response({"msg": "Hpaay Diwali", "colors": colors})
 
-    def post(self, requests, *args, **kwargs):
-        serializer = NameSerializer(data=requests.data)
+class TestViewSet(viewsets.ViewSet):
+    def list(self, request):
+        colors = ['red', 'green', 'blue']
+        return Response({"msg": "Happy new year", "colors": colors})
+
+    def create(self, request):
+        serializer = NameSerializer(data=request.data)
         if serializer.is_valid():
             name = serializer.data.get("name")
-            msg = f"Hello {name}, and fuck you !"
-            return Response({"msg":msg})
+            msg = f"Hello, {name}, and fuck you 2021 !"
+            return Response({"msg": msg})
         else:
-            return Response({"msg": serializer.errors})
-    
-    def put(self, requests, *args, **kwargs):
-        return Response({"msg": "Thi response is from PUT."})
-        
-    def patch(self, requests, *args, **kwargs):
-        return Response({"msg": "Thi response is from PATCH."})
-    
-    def delete(self, requests, *args, **kwargs):
-        return Response({"msg": "Thi response is from DELETE."})
+            return Response(serializer.errors)
 
+    def retrieve(self, request, pk=None):
+        return Response({"msg": "This is retieve method !"})
+
+    def update(self, request, pk=None):
+        return Response({"msg": "This is update method !"})
+
+    def partial_update(self, request, pk=None):
+        return Response({"msg": "This is partial_update method !"})
+
+    def destroy(self, request, pk=None):
+        return Response({"msg": "This is destroy method !"})

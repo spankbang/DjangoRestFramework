@@ -15,10 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from DjangoRestFrameworkApp.views import TestAPIView
+from DjangoRestFrameworkApp.views import TestViewSet
+from rest_framework.routers import DefaultRouter
+router = DefaultRouter()
+router.register('test_view_set', TestViewSet, basename="test_view_set")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api-rest/", include("rest_framework.urls")),
-    path("api/",TestAPIView.as_view())
+    path("", include(router.urls))
 ]
