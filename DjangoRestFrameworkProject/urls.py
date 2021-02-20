@@ -21,8 +21,21 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 router.register("api", EmployeeCRUD,basename="employeeCRUD")
 
+
+from rest_framework_jwt.views import (
+    obtain_jwt_token,
+    refresh_jwt_token,
+    verify_jwt_token
+)
+
+from DjangoRestFrameworkApp.views import EmployeeCRUD
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("get_api_token/", views.obtain_auth_token, name="get_api_token"),
-    path("",include(router.urls) )
+    path("obtain_jwt_token/", obtain_jwt_token),
+    path("refresh_jwt_token/", refresh_jwt_token),
+    path("verify_jwt_token/", verify_jwt_token),
+    path("", include(router.urls))
+
+
 ]
