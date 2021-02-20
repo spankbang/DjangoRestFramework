@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View
 from .models import Employee
+from .serializers import EmployeeSerializer
 import io
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
@@ -8,33 +9,80 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.response import Response
-from .serializers import NameSerializer
+from rest_framework.views import APIView
+from rest_framework.generics import *
 
-from rest_framework import viewsets
+
+class EmployeeAPIView(APIView):
+
+    def get(self, request, format=None):
+        qs = Employee.objects.all()
+        serializer = EmployeeSerializer(qs, many=True)
+        return Response(serializer.data)
+
+# Only list the records
+class EmployeeListApiView(ListAPIView):
+    # queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+    def get_queryset(self):
+        qs = Employee.objects.all()
+        name = self.request.GET.get("ename")
+        if name is not None:
+            qs = qs.filter(ename__icontains=name)
+        return qs
+
+# only create
+class EmployeeCreateApiView(CreateAPIView):
+    qs = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+# only retieve
+class EmployeeRetrieveApiView(RetrieveAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+# only update
+class EmployeeUpdateApiView(UpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+# only delete
+class EmployeeDeleteApiView(DestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
 
 
-class TestViewSet(viewsets.ViewSet):
-    def list(self, request):
-        colors = ['red', 'green', 'blue']
-        return Response({"msg": "Happy new year", "colors": colors})
 
-    def create(self, request):
-        serializer = NameSerializer(data=request.data)
-        if serializer.is_valid():
-            name = serializer.data.get("name")
-            msg = f"Hello, {name}, and fuck you 2021 !"
-            return Response({"msg": msg})
-        else:
-            return Response(serializer.errors)
 
-    def retrieve(self, request, pk=None):
-        return Response({"msg": "This is retieve method !"})
+# list employee records and also create it
+class EmployeeListCreateAPIView(ListCreateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
 
-    def update(self, request, pk=None):
-        return Response({"msg": "This is update method !"})
+# list employee records and also update it
+class EmployeeRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
 
-    def partial_update(self, request, pk=None):
-        return Response({"msg": "This is partial_update method !"})
+# list employee records and also delete it
+class EmployeeRetrieveDestroyAPIView(RetrieveDestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
 
-    def destroy(self, request, pk=None):
-        return Response({"msg": "This is destroy method !"})
+# list employee records and also update and delete it
+class EmployeeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+
+######################################################  only two end points  ######################################################
+
+class EmployeeListCreateAPIView(ListCreateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+
+class EmployeeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
